@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} - LinguaPro Language Education Center</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <a class="brand" href="{{ url_for('main.home') }}">LinguaPro <span>Language Education Center</span></a>
+      <nav>
+        <a href="{{ url_for('main.home') }}" {% if request.endpoint == 'main.home' %}class="active"{% endif %}>Home</a>
+        <a href="{{ url_for('main.groups') }}" {% if request.endpoint == 'main.groups' %}class="active"{% endif %}>Groups</a>
+        <a href="{{ url_for('main.enroll') }}" {% if request.endpoint == 'main.enroll' %}class="active"{% endif %}>Enroll</a>
+        <a href="{{ url_for('main.enrollments') }}" {% if request.endpoint == 'main.enrollments' %}class="active"{% endif %}>Enrollments</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="wrap">MVP for Laboratory 7. The school and all data are simulated.</footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Groups{% endblock %}
+{% block content %}
+<h1>Course groups</h1>
+
+<p class="filters">
+  Language:
+  <a href="{{ url_for('main.groups') }}" {% if not selected %}class="active"{% endif %}>All</a>
+  {% for lang in languages %}
+    <a href="{{ url_for('main.groups', language=lang) }}" {% if selected == lang %}class="active"{% endif %}>{{ lang }}</a>
+  {% endfor %}
+</p>
+
+<table>
+  <thead>
+    <tr><th>Group</th><th>Level</th><th>Schedule</th><th>Starts</th><th>Free seats</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for g in groups %}
+    <tr>
+      <td>{{ g.title }}</td>
+      <td>{{ g.level }}</td>
+      <td>{{ g.schedule }}</td>
+      <td>{{ g.start_date }}</td>
+      <td>{% if g.free_seats > 0 %}{{ g.free_seats }} of {{ g.capacity }}{% else %}<span class="full">Full</span>{% endif %}</td>
+      <td>{% if g.free_seats > 0 %}<a class="button small" href="{{ url_for('main.enroll', group_id=g.id) }}">Enroll</a>{% endif %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6">No groups found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

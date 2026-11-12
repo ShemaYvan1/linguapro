@@ -1,0 +1,7 @@
+# local database and environment: never commit these
+instance/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env

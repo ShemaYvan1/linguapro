@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Enrollments{% endblock %}
+{% block content %}
+<h1>Recent enrollments</h1>
+<p class="hint">E-mail addresses and phone numbers are not shown here because the MVP has no login yet.</p>
+
+<table>
+  <thead><tr><th>No.</th><th>Student</th><th>Group</th><th>Goal</th><th>Enrolled at</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td><a href="{{ url_for('main.confirmation', enrollment_id=r.id) }}">{{ r.id }}</a></td>
+      <td>{{ r.full_name }}</td><td>{{ r.title }}</td><td>{{ r.goal }}</td><td>{{ r.created_at }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5">No enrollments yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Enroll in a language course</h1>
+<p class="lead">LinguaPro teaches English, German and Spanish in small groups. Pick a group with a free seat and
+  enroll in a few steps.</p>
+
+<div class="cards">
+  <div class="card"><div class="num">{{ stats.groups }}</div><div>course groups</div></div>
+  <div class="card"><div class="num">{{ stats.free_seats }}</div><div>free seats</div></div>
+  <div class="card"><div class="num">{{ stats.enrollments }}</div><div>enrollments so far</div></div>
+</div>
+
+<p>
+  <a class="button" href="{{ url_for('main.enroll') }}">Enroll a student</a>
+  <a class="button secondary" href="{{ url_for('main.groups') }}">See groups and free seats</a>
+</p>
+
+<h2>How it works</h2>
+<ol>
+  <li>Look at the groups and their free seats.</li>
+  <li>Fill in the enrollment form: name, e-mail, phone, group and learning goal.</li>
+  <li>The system checks the data and the free seat, then shows your confirmation.</li>
+</ol>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Enrollment confirmed{% endblock %}
+{% block content %}
+<h1>Enrollment confirmed</h1>
+<p class="lead">Thank you, {{ e.full_name }}. You are enrolled.</p>
+
+<dl class="details">
+  <dt>Enrollment number</dt><dd>{{ e.id }}</dd>
+  <dt>Group</dt><dd>{{ e.title }}</dd>
+  <dt>Language and level</dt><dd>{{ e.language }}, {{ e.level }}</dd>
+  <dt>Schedule</dt><dd>{{ e.schedule }}</dd>
+  <dt>Start date</dt><dd>{{ e.start_date }}</dd>
+  <dt>Learning goal</dt><dd>{{ e.goal }}</dd>
+  <dt>E-mail</dt><dd>{{ e.email }}</dd>
+</dl>
+
+<p class="hint">This confirmation is shown on screen only. E-mails and online payment are planned for a later version.</p>
+<p>
+  <a class="button" href="{{ url_for('main.groups') }}">Back to groups</a>
+  <a class="button secondary" href="{{ url_for('main.enroll') }}">Enroll another student</a>
+</p>
+{% endblock %}
