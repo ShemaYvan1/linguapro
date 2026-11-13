@@ -79,14 +79,6 @@ pip install -r requirements.txt
 python run.py
 ```
 
-macOS / Linux:
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python3 run.py
-```
 
 Open http://127.0.0.1:5000. Another port: set `PORT`, for example `PORT=5001 python3 run.py`.
 The app must keep running in its terminal window while you use the browser.
@@ -118,7 +110,7 @@ python scripts/acceptance_check.py
 
 Actual results are in `docs/test-results.md`.
 
-## Project structure
+
 
 ```
 run.py                       starts the app
@@ -131,22 +123,14 @@ docs/                        erd.png, architecture.png, screenshots/, test-resul
 
 Architecture: browser -> Flask (routes -> service -> templates) -> SQLite. See `docs/architecture.png`.
 
-## Left for later laboratories
-
-Placement test and scoring, online payment, e-mail confirmation, waiting list, teacher notification, status page,
-administrator pages, login and roles, protection against forged form submissions (CSRF), GDPR tools.
 
 ## Team contributions
 
 TODO - the team must fill this in honestly before submitting.
 
-| Member | What they did |
-|--------|---------------|
-| (name) | (e.g. database schema and ERD) |
-| (name) | (e.g. enrollment form and validation) |
-| (name) | (e.g. tests and documentation) |
-| (name) | |
+| Member          |
+|-----------------|
+| Yvan shema      |
+| UMULISA JOYEUSE |
+| SHRINITTI       | 
 
-## Notes
-
-No passwords or secrets are stored in this repository. The `instance` folder (the database) is ignored by git.
