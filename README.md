@@ -108,6 +108,8 @@ python scripts/acceptance_check.py
 | T7 | check constraint (direct SQL) | database rejects the row |
 | T8 | server restarted | earlier record still retrievable |
 
+!! a quick disclaimer after testing the application we added some datas after, so there might be more datas than this one on the test.
+
 Actual results are in `docs/test-results.md`.
 
 
