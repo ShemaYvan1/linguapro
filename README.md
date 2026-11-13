@@ -126,8 +126,6 @@ Architecture: browser -> Flask (routes -> service -> templates) -> SQLite. See `
 
 ## Team contributions
 
-TODO - the team must fill this in honestly before submitting.
-
 | Member          |
 |-----------------|
 | Yvan shema      |
