@@ -14,8 +14,9 @@ class EnrollmentError(Exception):
 def list_groups(conn, language=None):
     """All groups with the number of free seats (capacity minus enrollments)."""
     sql = (
-        "SELECT g.*, g.capacity - COUNT(e.id) AS free_seats "
-        "FROM course_groups g LEFT JOIN enrollments e ON e.group_id = g.id "
+        "SELECT g.*, t.full_name AS teacher, g.capacity - COUNT(e.id) AS free_seats "
+        "FROM course_groups g JOIN teachers t ON t.id = g.teacher_id "
+        "LEFT JOIN enrollments e ON e.group_id = g.id "
     )
     params = ()
     if language:
@@ -85,8 +86,8 @@ def enroll_student(conn, data):
 def get_enrollment(conn, enrollment_id):
     return conn.execute(
         "SELECT e.id, e.goal, e.created_at, s.full_name, s.email, g.title, g.language, g.level, g.schedule, "
-        "g.start_date FROM enrollments e JOIN students s ON s.id = e.student_id "
-        "JOIN course_groups g ON g.id = e.group_id WHERE e.id = ?",
+        "g.start_date, t.full_name AS teacher FROM enrollments e JOIN students s ON s.id = e.student_id "
+        "JOIN course_groups g ON g.id = e.group_id JOIN teachers t ON t.id = g.teacher_id WHERE e.id = ?",
         (enrollment_id,),
     ).fetchone()
 

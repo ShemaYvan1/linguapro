@@ -1,41 +1,76 @@
-# LinguaPro - Language Education Center (MVP)
+# LinguaPro - Language Education Center
 
-First working version for Introduction to Engineering Design, Laboratory 7.
-The school, the course groups and all data are simulated.
+Project for Introduction to Engineering Design (Laboratories 7 and 8).
+The school, the course groups, the teachers and all data are simulated.
 
-## MVP operation
+## Implemented operation
 
-**Enroll a student in a course group.** The student (or office staff) opens the groups list,
-picks a group with a free seat, fills in the enrollment form and gets a confirmation page.
+**Enroll a student in a course group**, end to end:
+form -> server-side validation -> save in the SQLite database -> confirmation page -> record can be
+retrieved later (also after the application is restarted).
 
 Input: full name, e-mail, phone, group, learning goal.
 
-Validation (done on the server, in `linguapro/routes.py`):
-- name: 2 to 80 characters
-- e-mail: valid format, at most 120 characters, stored in lowercase
-- phone: 7 to 20 digits, spaces or hyphens, optional leading `+`
-- goal: one of Work, Travel, Exam preparation, Hobby
-- group: must exist
+Validation (server side, `linguapro/routes.py`):
+- name 2 to 80 characters; e-mail valid, at most 120 characters, stored in lowercase;
+  phone 7 to 20 digits, spaces or hyphens, optional leading `+`;
+  goal one of Work, Travel, Exam preparation, Hobby; group must exist
+- bad input -> HTTP 400, the form is shown again with a message under each wrong field, nothing is saved
 
-Business rules (in `linguapro/service.py`):
-- a full group is rejected (HTTP 409)
-- the same student cannot enroll twice in the same group (HTTP 409)
-- the seat check and the insert run in one `BEGIN IMMEDIATE` transaction, so two people
-  cannot take the last seat at the same time
+Business rules (`linguapro/service.py`):
+- full group -> rejected (HTTP 409)
+- same student (same e-mail) twice in the same group -> rejected (HTTP 409)
+- seat check and insert happen in one `BEGIN IMMEDIATE` transaction, so the last seat goes to one person only
 
-Related requirements from the Lab 5 document: FR-01, FR-02, FR-07, FR-08, FR-13, FR-14, NFR-08.
+The database adds a second line of defence: foreign keys, UNIQUE and CHECK constraints
+(see `linguapro/schema.sql`). Even a bug in the application cannot save an enrollment for an unknown student or group.
 
-## Technologies
+## Requirements traceability
 
-- Python 3.10 or newer (developed with 3.13)
-- Flask 3 (web framework, Jinja2 templates)
-- SQLite (database, Python standard library `sqlite3`)
-- plain HTML and CSS, no JavaScript framework
-- `unittest` for tests
+| Requirement (Lab 4) | Where it is implemented |
+|---------------------|-------------------------|
+| FR-01 register student data | enrollment form, `validate_enrollment` in `routes.py`, table `students` |
+| FR-02 choose language and goal | groups list (language, level), goal field, table `enrollments` |
+| FR-07 show groups with free seats | `/groups`, `list_groups` in `service.py` (joins `teachers`) |
+| FR-08 block enrollment in a full group | `enroll_student` (409) and disabled option in the form |
+| FR-13 create enrollment record | `enroll_student`, tables `students` and `enrollments` |
+| FR-14 confirmation | confirmation page (on screen only, no e-mail yet) |
+| NFR-07 data is persistent | SQLite file; test T8 restarts the server |
+| NFR-08 last seat goes to one student | transaction + threaded test with 24 requests |
+
+## Database
+
+ERD: `docs/erd.png` (7 entities). Schema: `linguapro/schema.sql`.
+
+| Table | Used now? | Purpose |
+|-------|-----------|---------|
+| teachers | yes (MVP) | teacher of a group |
+| course_groups | yes (MVP) | groups with schedule, capacity, teacher |
+| students | yes (MVP) | people who enroll |
+| enrollments | yes (MVP) | student in a group (UNIQUE student+group) |
+| placement_tests | later | Lab 4 FR-03/FR-04 |
+| payments | later | Lab 4 FR-11/FR-12 |
+| waitlist_entries | later | Lab 4 FR-09/FR-10 |
+
+Initialization is repeatable. The database file `instance/linguapro.db` (with the tables and 3 demo teachers,
+6 demo groups, 4 demo students) is created automatically on the first start. It can also be created on its own:
+
+```
+python -m flask --app run init-db
+```
+
+To start again from zero, stop the app and delete the `instance` folder.
+A database made by the Laboratory 7 version has another schema; the app keeps it as
+`linguapro_old_schema_backup.db` and creates a new one.
+
+## Dependencies and technologies
+
+Python 3.10 or newer (developed with 3.13), Flask 3 (see `requirements.txt`), SQLite through the standard
+library `sqlite3`, HTML and CSS, `unittest`.
 
 ## Setup and run
 
-Windows (PowerShell):
+Windows (PowerShell). If activating is blocked, first run `Set-ExecutionPolicy -Scope Process Bypass`:
 
 ```
 python -m venv .venv
@@ -53,49 +88,53 @@ pip install -r requirements.txt
 python3 run.py
 ```
 
-Open http://127.0.0.1:5000 in a browser. The database file `instance/linguapro.db` is created
-on the first start together with 6 demo groups (one of them full, one with a single free seat).
-To start again from scratch, stop the app and delete the `instance` folder.
-
-To use another port: set the `PORT` environment variable, for example `PORT=5001 python3 run.py`.
+Open http://127.0.0.1:5000. Another port: set `PORT`, for example `PORT=5001 python3 run.py`.
+The app must keep running in its terminal window while you use the browser.
 
 ## Tests
+
+Automated tests (24, use temporary databases):
 
 ```
 python -m unittest discover -s tests -v
 ```
 
-13 tests: pages load, valid enrollment, full group, duplicate, invalid input, unknown group,
-and a test where 24 students try to take the last free seat at once (exactly one must succeed).
+Acceptance check with a real server and a real restart (8 documented tests; writes `docs/test-results.md`):
+
+```
+python scripts/acceptance_check.py
+```
+
+| ID | Test | Expected |
+|----|------|----------|
+| T1 | valid submission | record saved and displayed |
+| T2 | missing required fields | validation error (400), nothing saved |
+| T3 | unknown group | rejected (400), data unchanged |
+| T4 | full group | rejected (409), data unchanged |
+| T5 | same student, same group | rejected (409), data unchanged |
+| T6 | foreign key (direct SQL) | database rejects the row |
+| T7 | check constraint (direct SQL) | database rejects the row |
+| T8 | server restarted | earlier record still retrievable |
+
+Actual results are in `docs/test-results.md`.
 
 ## Project structure
 
 ```
-run.py                  starts the app
-requirements.txt        Python dependencies
-linguapro/
-  __init__.py           creates the Flask app
-  db.py                 database connection, schema creation, demo data
-  schema.sql            tables: students, course_groups, enrollments
-  routes.py             URLs and input validation
-  service.py            business rules and database queries
-  templates/            HTML pages
-  static/style.css      styling
-tests/test_enroll.py    automated tests
-docs/architecture.png   architecture diagram
-docs/screenshots/       screenshots of the running app
+run.py                       starts the app
+requirements.txt             dependencies
+linguapro/                   application (db.py, schema.sql, routes.py, service.py, templates/, static/)
+tests/                       unittest tests
+scripts/acceptance_check.py  acceptance check with a real restart
+docs/                        erd.png, architecture.png, screenshots/, test-results.md
 ```
 
-## Architecture
+Architecture: browser -> Flask (routes -> service -> templates) -> SQLite. See `docs/architecture.png`.
 
-Browser -> Flask application (routes -> service -> templates) -> SQLite.
-See `docs/architecture.png`. Validation and the seat check are on the server; the HTML
-attributes in the form are only hints for the user.
+## Left for later laboratories
 
-## Not in this version
-
-Placement test, online payment, e-mail notifications, waiting list, teacher notification,
-administrator pages, login and user roles. These are planned for later laboratories.
+Placement test and scoring, online payment, e-mail confirmation, waiting list, teacher notification, status page,
+administrator pages, login and roles, protection against forged form submissions (CSRF), GDPR tools.
 
 ## Team contributions
 
@@ -103,11 +142,11 @@ TODO - the team must fill this in honestly before submitting.
 
 | Member | What they did |
 |--------|---------------|
-| (name) | (e.g. wrote the enrollment form and validation) |
-| (name) | (e.g. database schema and tests) |
-| (name) | (e.g. architecture diagram and documentation) |
+| (name) | (e.g. database schema and ERD) |
+| (name) | (e.g. enrollment form and validation) |
+| (name) | (e.g. tests and documentation) |
 | (name) | |
 
 ## Notes
 
-No passwords or secrets are stored in this repository. The `instance` folder (database) is ignored by git.
+No passwords or secrets are stored in this repository. The `instance` folder (the database) is ignored by git.

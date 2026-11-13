@@ -13,7 +13,7 @@
 
 <table>
   <thead>
-    <tr><th>Group</th><th>Level</th><th>Schedule</th><th>Starts</th><th>Free seats</th><th></th></tr>
+    <tr><th>Group</th><th>Level</th><th>Schedule</th><th>Teacher</th><th>Starts</th><th>Free seats</th><th></th></tr>
   </thead>
   <tbody>
   {% for g in groups %}
@@ -21,12 +21,13 @@
       <td>{{ g.title }}</td>
       <td>{{ g.level }}</td>
       <td>{{ g.schedule }}</td>
+      <td>{{ g.teacher }}</td>
       <td>{{ g.start_date }}</td>
       <td>{% if g.free_seats > 0 %}{{ g.free_seats }} of {{ g.capacity }}{% else %}<span class="full">Full</span>{% endif %}</td>
       <td>{% if g.free_seats > 0 %}<a class="button small" href="{{ url_for('main.enroll', group_id=g.id) }}">Enroll</a>{% endif %}</td>
     </tr>
   {% else %}
-    <tr><td colspan="6">No groups found.</td></tr>
+    <tr><td colspan="7">No groups found.</td></tr>
   {% endfor %}
   </tbody>
 </table>
